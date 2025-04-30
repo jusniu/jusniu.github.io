@@ -1,8 +1,156 @@
-<html>
-    <head>
-        Justin's Homepage
-    </head>
-    <body>
-        <a href="Countries.html"> Utilizing REST API - Countries Search</a>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Justin Niu - Portfolio</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background-color: #1f2937;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    header p {
+      margin-top: 0.5rem;
+      font-size: 1.2rem;
+    }
+    section {
+      padding: 2rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+    .projects, .skills {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .project, .skill {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .contact-form {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .contact-form input, .contact-form textarea {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .contact-form button {
+      background-color: #1f2937;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1f2937;
+      color: white;
+    }
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Justin Niu</h1>
+    <p>Business Systems Analyst • Business Intelligence • Product Management • Product Owner • Data Engineer • Web Developer</p>
+  </header>
+
+  <section>
+    <h2>Projects</h2>
+    <div class="projects">
+      <div class="project">
+        <h3>Rest API Demo - Country Database</h3>
+        <p>Sample Web App utilizing RESTFUl API</p>
+        <a href="Countries.html" target="_blank">View Project</a>
+      </div>
+      <div class="project">
+        <h3>SQL</h3>
+        <p>Placeholder</p>
+        <a href="#" target="_blank">View Project</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Software</h2>
+    <div class="skills">
+      <div class="skill">Salesforce</div>
+      <div class="skill">Churn Zero</div>
+      <div class="skill">Tableau</div>
+      <div class="skill">Domo</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Skills</h2>
+    <div class="skills">
+      <div class="skill">MySQL</div>
+      <div class="skill">SOQL(Salesforce)</div>
+      <div class="skill">Python</div>
+      <div class="skill">HTML, CSS, JavaScript</div>
+    </div>
+  </section>
+  
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("YKuEMuwUWya-2havDN"); // Replace with your EmailJS public key
+    })();
+  
+    function sendEmail(e) {
+      e.preventDefault();
+      
+      emailjs.sendForm('service_dqgljg7', 'template_133bngn', e.target)
+        .then(() => {
+          alert("Message sent successfully!");
+          e.target.reset();
+        }, (error) => {
+          alert("Failed to send. Error: " + JSON.stringify(error));
+        });
+    }
+  </script>
+
+  <section>
+    <h2>Contact</h2>
+    <form class="contact-form" onsubmit="sendEmail(event)">
+        <input type="text" name="name" placeholder="Your Name" required />
+        <input type="email" name="email" placeholder="Your Email" required />
+        <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+        <div class="g-recaptcha" data-sitekey="6Ld4KyorAAAAALQBy7vBbhglS1Q2atcC4kQUwcWB"></div>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Justin Niu. All rights reserved.</p>
+  </footer>
+  
+</body>
 </html>
