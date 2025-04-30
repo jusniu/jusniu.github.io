@@ -118,7 +118,11 @@
     </div>
   </section>
   
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script 
+  type="text/javascript"
+  src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+  //src="https://cdn.emailjs.com/dist/email.min.js">
+  </script>
   <script>
     emailjs.init("KuEMuwUWya-2havDN"); //EmailJS public key
     
@@ -131,14 +135,34 @@
       alert("Please complete the reCAPTCHA first.");
       return;
     }
+    const loading = document.getElementById("loading");
+    loading.style.display = "block"; // Show spinner
+    
+    const submitButton = e.target.querySelector("button[type='submit']");
+    submitButton.disabled = true;
+
+    // Inside .then() and .catch()
+    submitButton.disabled = false;
+
+    function showSuccess() {
+        const msg = document.getElementById("success-message");
+        msg.style.display = "block";
+
+        // Hide it again after 5 seconds (optional)
+        setTimeout(() => {
+        msg.style.display = "none";
+        }, 5000);
+    }
 
     // Proceed with sending email
     emailjs.sendForm('service_dqgljg7', 'template_133bngn', e.target)
         .then(() => {
-            alert("Message sent successfully!");
+            loading.style.display = "none"; // Hide spinner
+            showSuccess(); // Call a success UI function
             e.target.reset();
             grecaptcha.reset(); // reset captcha for next use
         }, (error) => {
+            loading.style.display = "none";
             console.error("Email failed:", error);
             alert("Failed to send. Try again later.");
         });
@@ -150,8 +174,15 @@
     <form class="contact-form" onsubmit="sendForm(event)">
         <input type="text" name="name" placeholder="Your Name" required />
         <input type="email" name="email" placeholder="Your Email" required />
+        <input type="text" name="title" required>
         <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
         <button type="submit">Send Message</button>
+        <div id="loading" style="display:none; margin-top:10px;">
+            <span>Sending...</span>
+        </div>
+        <div id="success-message" style="display:none; color: green; margin-top: 15px;">
+            ✅ Your message has been sent successfully!
+        </div>
         <div class="g-recaptcha" data-sitekey="6Ld4KyorAAAAALQBy7vBbhglS1Q2atcC4kQUwcWB"></div>
     </form>
   </section>
