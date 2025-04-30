@@ -120,26 +120,34 @@
   
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
-    (function(){
-      emailjs.init("KuEMuwUWya-2havDN"); // Replace with your EmailJS public key
-    })();
-  
-    function sendEmail(e) {
-      e.preventDefault();
-      
-      emailjs.sendForm('service_dqgljg7', 'template_133bngn', e.target)
+    emailjs.init("KuEMuwUWya-2havDN"); //EmailJS public key
+    
+    function handleSubmit(e) {
+    e.preventDefault();
+
+    // Check if reCAPTCHA is completed
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+      alert("Please complete the reCAPTCHA first.");
+      return;
+    }
+
+    // Proceed with sending email
+    emailjs.sendForm('service_dqgljg7', 'template_133bngn', e.target)
         .then(() => {
-          alert("Message sent successfully!");
-          e.target.reset();
+            alert("Message sent successfully!");
+            e.target.reset();
+            grecaptcha.reset(); // reset captcha for next use
         }, (error) => {
-          alert("Failed to send. Error: " + JSON.stringify(error));
+            console.error("Email failed:", error);
+            alert("Failed to send. Try again later.");
         });
     }
   </script>
 
   <section>
     <h2>Contact</h2>
-    <form class="contact-form" onsubmit="sendEmail(event)">
+    <form class="contact-form" onsubmit="sendForm(event)">
         <input type="text" name="name" placeholder="Your Name" required />
         <input type="email" name="email" placeholder="Your Email" required />
         <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
