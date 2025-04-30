@@ -126,6 +126,16 @@
   <script>
     emailjs.init("KuEMuwUWya-2havDN"); //EmailJS public key
     
+    function showSuccess() {
+        const msg = document.getElementById("success-message");
+        msg.style.display = "block";
+
+        // Hide it again after 5 seconds (optional)
+        setTimeout(() => {
+        msg.style.display = "none";
+        }, 5000);
+    }
+
     function handleSubmit(e) {
     e.preventDefault();
 
@@ -141,19 +151,6 @@
     const submitButton = e.target.querySelector("button[type='submit']");
     submitButton.disabled = true;
 
-    // Inside .then() and .catch()
-    submitButton.disabled = false;
-
-    function showSuccess() {
-        const msg = document.getElementById("success-message");
-        msg.style.display = "block";
-
-        // Hide it again after 5 seconds (optional)
-        setTimeout(() => {
-        msg.style.display = "none";
-        }, 5000);
-    }
-
     // Proceed with sending email
     emailjs.sendForm('service_dqgljg7', 'template_133bngn', e.target)
         .then(() => {
@@ -161,20 +158,23 @@
             showSuccess(); // Call a success UI function
             e.target.reset();
             grecaptcha.reset(); // reset captcha for next use
+             // Inside .then() and .catch()
+            submitButton.disabled = false;
         }, (error) => {
             loading.style.display = "none";
             console.error("Email failed:", error);
             alert("Failed to send. Try again later.");
+            submitButton.disabled = false;
         });
     }
   </script>
 
   <section>
     <h2>Contact</h2>
-    <form class="contact-form" onsubmit="sendForm(event)">
+    <form class="contact-form" onsubmit="handleSubmit(event)">
         <input type="text" name="name" placeholder="Your Name" required />
         <input type="email" name="email" placeholder="Your Email" required />
-        <input type="text" name="title" required>
+        <input type="text" name="title" Placeholder ="Subject" required />
         <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
         <button type="submit">Send Message</button>
         <div id="loading" style="display:none; margin-top:10px;">
