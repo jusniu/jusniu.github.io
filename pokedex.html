@@ -35,7 +35,7 @@
         if (!response.ok) throw new Error("Not found");
         const data = await response.json();
         const imgUrl = data.sprites.front_default;
-        display.innerHTML = `<img src="${imgUrl}" alt="${name}" />`;
+        display.innerHTML = `<img src="${imgUrl}" alt="${name}" width="200px" height="200px"/>`;
       } catch (error) {
         display.innerHTML = "<p style='color:white;text-align:center;'>Pokémon not found!</p>";
       }

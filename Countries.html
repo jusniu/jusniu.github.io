@@ -50,12 +50,14 @@
         const info = data[0];
 
         resultDiv.innerHTML = `
+          <center>
           <h2>${info.name.common}</h2>
           <p><strong>Capital:</strong> ${info.capital ? info.capital[0] : 'N/A'}</p>
           <p><strong>Population:</strong> ${info.population.toLocaleString()}</p>
           <p><strong>Region:</strong> ${info.region}</p>
           <p><strong>Subregion:</strong> ${info.subregion}</p>
           <img src="${info.flags.png}" alt="Flag of ${info.name.common}" />
+          </center>
         `;
       } catch (error) {
         resultDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
