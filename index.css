@@ -22,8 +22,12 @@ body {
     text-align: center;
   }
   #header {
+ /*
     margin: auto;
-    width: 50%;
+    width: 100%;
+*/
+    display: flex;
+    justify-content: center;
   }
   li {
     margin: 5px;
