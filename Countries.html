@@ -21,15 +21,20 @@
       max-width: 150px;
       margin-top: 10px;
     }
+    #center {
+      margin: auto;
+    }
   </style>
 </head>
 <body>
-  <h1>Country Info Finder</h1>
-  <input type="text" id="countryInput" placeholder="Enter country name" />
-  <button onclick="fetchCountryInfo()">Search</button>
+  
+  <div id="center">
+    <h1>Country Info Database</h1>
+    <input type="text" id="countryInput" placeholder="Enter country name" />
+    <button onclick="fetchCountryInfo()">Search</button>
 
-  <div id="result"></div>
-
+    <div id="result"></div>
+  </div>
   <script>
     async function fetchCountryInfo() {
       const country = document.getElementById('countryInput').value.trim();
