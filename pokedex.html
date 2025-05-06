@@ -11,7 +11,8 @@
         <h1>Pokedex</h1>
         <div class="pokedex">
             <div class="screen" id="pokemon-display">
-                <!-- Pokémon image will appear here -->
+                <div id="spinner" class="spinner" style="display: none;"></div>
+                <div id="pokemon-image"></div><!-- Pokémon image will appear here -->
             </div>
             <div class="info" id="pokemon-info">
                 <!-- Pokémon info goes here -->
@@ -33,6 +34,9 @@
   
     <script>
         async function getPokemon() {
+          const spinner = document.getElementById("spinner");
+          spinner.style.display = "block"; // Show spinner
+          
           const name = document.getElementById("pokemon-name").value.toLowerCase();
           const versionSelect = document.getElementById("version-select");
           const selectedVersion = versionSelect.value;
@@ -42,6 +46,7 @@
           if (!name) {
             display.innerHTML = "<p style='color:white;'>Enter a name!</p>";
             info.innerHTML = "";
+            spinner.style.display = "none"; // Hide spinner
             return;
           }
       
@@ -104,9 +109,11 @@
                     allRegions.add(regionName.charAt(0).toUpperCase() + regionName.slice(1));
                   }
                 } else {
+                  spinner.style.display = "none"; // Hide spinner
                   locationText = "Not found in selected version.";
                 }
               } else {
+                spinner.style.display = "none"; // Hide spinner
                 locationText = "Not found in the wild.";
               }
             }
@@ -115,7 +122,7 @@
               ? [...allRegions].join(", ")
               : "Unknown";
       
-            display.innerHTML = `<img src="${imgUrl}" alt="${name}" width="200px" height="200px"/>`;
+            document.getElementById("pokemon-image").innerHTML = `<img src="${imgUrl}" alt="${name}" width="200px" height="200px"/>`;
             info.innerHTML = `
               <strong>Name:</strong> ${data.name}<br/>
               <strong>Type:</strong> ${types}<br/>
@@ -126,10 +133,12 @@
               <strong>Regions:</strong> ${regionDisplay}<br/>
               <strong>Locations:</strong><br/>${locationText}
             `;
+            spinner.style.display = "none"; // Hide spinner
           } catch (error) {
             display.innerHTML = "<p style='color:white;'>Not found!</p>";
             info.innerHTML = "";
             console.error(error);
+            spinner.style.display = "none"; // Hide spinner
           }
         }
       
