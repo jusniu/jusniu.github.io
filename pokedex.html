@@ -45,9 +45,41 @@
         const height = data.height / 10;
         const weight = data.weight / 10;
         const abilities = data.abilities.map(a => a.ability.name).join(", ");
-        const stats = data.stats.map(stat => {
-          return `${stat.stat.name}: ${stat.base_stat}`;
-        }).join("<br/>");
+        const stats = data.stats.map(stat => { return `${stat.stat.name}: ${stat.base_stat}`;}).join("<br/>");
+
+        //get encounter location
+        const locRes = await fetch(data.location_area_encounters);
+        let locationText = "Unknown";
+        let region = "Unknown";
+
+        if (locRes.ok) {
+        const locations = await locRes.json();
+            if (locations.length > 0) 
+            {
+                 // Get first location_area’s full URL
+                const firstAreaURL = locations[0].location_area.url;
+
+                // Get location_area -> location
+                const areaRes = await fetch(firstAreaURL);
+                if (areaRes.ok) {
+                const areaData = await areaRes.json();
+
+                    // Get the location object
+                    const locationRes = await fetch(areaData.location.url);
+                    if (locationRes.ok) {
+                        const locationData = await locationRes.json();
+                        region = locationData.region.name;
+                        region = region.charAt(0).toUpperCase() + region.slice(1); // Capitalize
+                    }
+                }
+                const locationNames = locations.slice(0, 3).map(loc =>
+                    loc.location_area.name.replace(/-/g, " ")
+                );
+                locationText = locationNames.join(", ");
+            } else {
+                locationText = "Not found in the wild.";
+            }
+        }
 
         display.innerHTML = `<img src="${imgUrl}" alt="${name}" width="200px" height="200px"/>`;
         info.innerHTML = `
@@ -56,7 +88,9 @@
           <strong>Height:</strong> ${height} m<br/>
           <strong>Weight:</strong> ${weight} kg<br/>
           <strong>Abilities:</strong> ${abilities}<br/>
-          <strong>Stats:</strong><br/>${stats}
+          <strong>Stats:</strong><br/>${stats}<br/>
+          <strong>Region:</strong> ${region}<br/>
+          <strong>Locations:</strong><br/>${locationText}
         `;
       } catch (error) {
         display.innerHTML = "<p style='color:white;'>Not found!</p>";
