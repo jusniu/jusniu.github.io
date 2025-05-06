@@ -17,87 +17,139 @@
                 <!-- Pokémon info goes here -->
             </div>
             <div class="input-container">
-            <input type="text" id="pokemon-name" placeholder="Enter a Pokémon - ex: Pikachu" />
+                <input type="text" id="pokemon-name" placeholder="Enter a Pokémon - ex: Pikachu" />
+                <br/>
+                <br/>
+                <p><strong>Note: </strong>Dynamically updates the Region and Location info based on Version selected</p>
+                <label for="version-select">Choose version:</label>
+                <select id="version-select">
+                    <option value="">All</option>
+                    <!-- options will be dynamically inserted here -->
+                </select>
             </div>
             <div class="button" onclick="getPokemon()">Search</div>
         </div>
     </div>
   
-  <script>
-    async function getPokemon() {
-      const name = document.getElementById("pokemon-name").value.toLowerCase();
-      const display = document.getElementById("pokemon-display");
-      const info = document.getElementById("pokemon-info");
-
-      if (!name) {
-        display.innerHTML = "<p style='color:white;'>Enter a name!</p>";
-        info.innerHTML = "";
-        return;
-      }
-
-      try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-        if (!response.ok) throw new Error("Not found");
-        const data = await response.json();
-
-        const imgUrl = data.sprites.front_default;
-        const types = data.types.map(t => t.type.name).join(", ");
-        const height = data.height / 10;
-        const weight = data.weight / 10;
-        const abilities = data.abilities.map(a => a.ability.name).join(", ");
-        const stats = data.stats.map(stat => { return `${stat.stat.name}: ${stat.base_stat}`;}).join("<br/>");
-
-        //get encounter location
-        const locRes = await fetch(data.location_area_encounters);
-        let locationText = "Unknown";
-        let region = "Unknown";
-
-        if (locRes.ok) {
-        const locations = await locRes.json();
-            if (locations.length > 0) 
-            {
-                 // Get first location_area’s full URL
-                const firstAreaURL = locations[0].location_area.url;
-
-                // Get location_area -> location
-                const areaRes = await fetch(firstAreaURL);
-                if (areaRes.ok) {
-                const areaData = await areaRes.json();
-
-                    // Get the location object
+    <script>
+        async function getPokemon() {
+          const name = document.getElementById("pokemon-name").value.toLowerCase();
+          const versionSelect = document.getElementById("version-select");
+          const selectedVersion = versionSelect.value;
+          const display = document.getElementById("pokemon-display");
+          const info = document.getElementById("pokemon-info");
+      
+          if (!name) {
+            display.innerHTML = "<p style='color:white;'>Enter a name!</p>";
+            info.innerHTML = "";
+            return;
+          }
+      
+          try {
+            const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+            if (!response.ok) throw new Error("Not found");
+            const data = await response.json();
+      
+            const imgUrl = data.sprites.front_default;
+            const types = data.types.map(t => t.type.name).join(", ");
+            const height = data.height / 10;
+            const weight = data.weight / 10;
+            const abilities = data.abilities.map(a => a.ability.name).join(", ");
+            const stats = data.stats.map(stat => `${stat.stat.name}: ${stat.base_stat}`).join("<br/>");
+      
+            // Fetch location encounter info
+            const locRes = await fetch(data.location_area_encounters);
+            let locationText = "Unknown";
+            let allRegions = new Set();
+            let allVersions = new Set();
+      
+            if (locRes.ok) {
+              const locations = await locRes.json();
+      
+              if (locations.length > 0) {
+                // Collect all versions from encounters
+                locations.forEach(loc => {
+                  loc.version_details.forEach(v => {
+                    allVersions.add(v.version.name);
+                  });
+                });
+      
+                // Update dropdown
+                populateVersionDropdown([...allVersions]);
+      
+                // Filter by version
+                const filteredLocations = selectedVersion
+                  ? locations.filter(loc =>
+                      loc.version_details.some(v => v.version.name === selectedVersion)
+                    )
+                  : locations;
+      
+                if (filteredLocations.length > 0) {
+                  const locationNames = filteredLocations
+                    .slice(0, 5)
+                    .map(loc => loc.location_area.name.replace(/-/g, " "));
+                  locationText = locationNames.join(", ");
+      
+                  // Fetch each region from filtered locations
+                  for (const loc of filteredLocations) {
+                    const areaRes = await fetch(loc.location_area.url);
+                    if (!areaRes.ok) continue;
+                    const areaData = await areaRes.json();
+      
                     const locationRes = await fetch(areaData.location.url);
-                    if (locationRes.ok) {
-                        const locationData = await locationRes.json();
-                        region = locationData.region.name;
-                        region = region.charAt(0).toUpperCase() + region.slice(1); // Capitalize
-                    }
+                    if (!locationRes.ok) continue;
+                    const locationData = await locationRes.json();
+      
+                    const regionName = locationData.region.name;
+                    allRegions.add(regionName.charAt(0).toUpperCase() + regionName.slice(1));
+                  }
+                } else {
+                  locationText = "Not found in selected version.";
                 }
-                const locationNames = locations.slice(0, 3).map(loc =>
-                    loc.location_area.name.replace(/-/g, " ")
-                );
-                locationText = locationNames.join(", ");
-            } else {
+              } else {
                 locationText = "Not found in the wild.";
+              }
             }
+      
+            const regionDisplay = [...allRegions].length > 0
+              ? [...allRegions].join(", ")
+              : "Unknown";
+      
+            display.innerHTML = `<img src="${imgUrl}" alt="${name}" width="200px" height="200px"/>`;
+            info.innerHTML = `
+              <strong>Name:</strong> ${data.name}<br/>
+              <strong>Type:</strong> ${types}<br/>
+              <strong>Height:</strong> ${height} m<br/>
+              <strong>Weight:</strong> ${weight} kg<br/>
+              <strong>Abilities:</strong> ${abilities}<br/>
+              <strong>Stats:</strong><br/>${stats}<br/>
+              <strong>Regions:</strong> ${regionDisplay}<br/>
+              <strong>Locations:</strong><br/>${locationText}
+            `;
+          } catch (error) {
+            display.innerHTML = "<p style='color:white;'>Not found!</p>";
+            info.innerHTML = "";
+            console.error(error);
+          }
         }
-
-        display.innerHTML = `<img src="${imgUrl}" alt="${name}" width="200px" height="200px"/>`;
-        info.innerHTML = `
-          <strong>Name:</strong> ${data.name}<br/>
-          <strong>Type:</strong> ${types}<br/>
-          <strong>Height:</strong> ${height} m<br/>
-          <strong>Weight:</strong> ${weight} kg<br/>
-          <strong>Abilities:</strong> ${abilities}<br/>
-          <strong>Stats:</strong><br/>${stats}<br/>
-          <strong>Region:</strong> ${region}<br/>
-          <strong>Locations:</strong><br/>${locationText}
-        `;
-      } catch (error) {
-        display.innerHTML = "<p style='color:white;'>Not found!</p>";
-        info.innerHTML = "";
-      }
-    }
-  </script>
+      
+        // Helper function to populate the version dropdown
+        function populateVersionDropdown(versions) {
+          const versionSelect = document.getElementById("version-select");
+          const currentValue = versionSelect.value;
+          versionSelect.innerHTML = `<option value="">All</option>`;
+          versions.sort().forEach(version => {
+            const option = document.createElement("option");
+            option.value = version;
+            option.textContent = version.charAt(0).toUpperCase() + version.slice(1);
+            versionSelect.appendChild(option);
+          });
+          // Restore previous selection if still valid
+          if (versions.includes(currentValue)) {
+            versionSelect.value = currentValue;
+          }
+        }
+      </script>
 
 </body>
 </html>
