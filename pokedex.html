@@ -10,21 +10,21 @@
     <div id="center">
         <h1>Pokedex</h1>
         <div class="pokedex">
-            <div class="screen" id="pokemon-display">
-                <div id="spinner" class="spinner" style="display: none;"></div>
+            <div class="screen" id="pokemon-display"> <!-- The container for the grey screen where the Pokemon will appear-->
+                <div id="spinner" class="spinner" style="display: none;"></div> <!-- This is a Loading Spinner that will show when the JS script is running -->
                 <div id="pokemon-image"></div><!-- Pokémon image will appear here -->
             </div>
-            <div class="info" id="pokemon-info">
+            <div class="info" id="pokemon-info"> <!-- this is the white screen container which will display the stats of the Pokemon -->
                 <!-- Pokémon info goes here -->
             </div>
             <div class="input-container">
-                <input type="text" id="pokemon-name" placeholder="Enter a Pokémon - ex: Pikachu" />
+                <input type="text" id="pokemon-name" placeholder="Enter a Pokémon - ex: Pikachu" /> <!-- field to enter the Pokemon name to search-->
                 <br/>
                 <br/>
-                <p><strong>Note: </strong>Dynamically updates the Region and Location info based on Version selected</p>
-                <label for="version-select">Choose version:</label>
+                <p><strong>Note: </strong>Dynamically updates the Pokemon Region and Location info based on Version selected</p>
+                <label for="version-select">Choose version:</label> <!-- Nintendo has released many versions of the Pokemon game since 1993 -->
                 <select id="version-select">
-                    <option value="">All</option>
+                    <option value="">All</option> <!-- The versions in the drop-down will change depending on if the Pokemon exists in that version -->
                     <!-- options will be dynamically inserted here -->
                 </select>
             </div>
@@ -35,7 +35,7 @@
     <script>
         async function getPokemon() {
           const spinner = document.getElementById("spinner");
-          spinner.style.display = "block"; // Show spinner
+          spinner.style.display = "block"; // Shows Loading Spinner until the function exits/returns.
           
           const name = document.getElementById("pokemon-name").value.toLowerCase();
           const versionSelect = document.getElementById("version-select");
@@ -44,8 +44,8 @@
           const info = document.getElementById("pokemon-info");
       
           if (!name) {
-            display.innerHTML = "<p style='color:white;'>Enter a name!</p>";
-            info.innerHTML = "";
+            display.innerHTML = "<p style='color:white;'>Enter a name!</p>"; // Displays in the grey screen
+            info.innerHTML = "";  //white screen will be blank
             spinner.style.display = "none"; // Hide spinner
             return;
           }
@@ -56,11 +56,11 @@
             const data = await response.json();
       
             const imgUrl = data.sprites.front_default;
-            const types = data.types.map(t => t.type.name).join(", ");
-            const height = data.height / 10;
-            const weight = data.weight / 10;
-            const abilities = data.abilities.map(a => a.ability.name).join(", ");
-            const stats = data.stats.map(stat => `${stat.stat.name}: ${stat.base_stat}`).join("<br/>");
+            const types = data.types.map(t => t.type.name).join(", "); //Pokemon can have multiple types. concatenates Types ex: fire, fighting,etc
+            const height = data.height / 10; //converted measurement
+            const weight = data.weight / 10; //converted measurement
+            const abilities = data.abilities.map(a => a.ability.name).join(", "); //Pokemon have multiple abilities, concatenates them
+            const stats = data.stats.map(stat => `${stat.stat.name}: ${stat.base_stat}`).join("<br/>"); //concatenates and disaplys all stats
       
             // Fetch location encounter info
             const locRes = await fetch(data.location_area_encounters);
