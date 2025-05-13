@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive World Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 90vh;
+      width: 100%;
+    }
+
+    .modal {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 1000;
+      width: 300px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .modal.active {
+      display: block;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 999;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+    
+    #controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="controls">
+    <select id="language-select">
+        <option value="eng" selected>English</option>
+        <option value="spa">Español</option>
+        <option value="fra">Français</option>
+        <option value="deu">Deutsch</option>
+    </select>
+    
+    <form id="country-search-form">
+        <input type="text" id="country-search" placeholder="Search for a country" style="padding: 6px; width: 200px; border-radius: 5px; border: 1px solid #ccc;">
+        <button type="submit">Go</button>
+    </form>
+</div>
+
+<div id="map"></div>
+<div class="overlay" id="overlay"></div>
+
+<div class="modal" id="countryModal">
+  <h2 id="countryName">Country Name</h2>
+  <img id="flag" src="" alt="Flag" style="width: 100px; margin-bottom: 10px;">
+  <p><strong>Capital:</strong> <span id="capital"></span></p>
+  <p><strong>Population:</strong> <span id="population"></span></p>
+  <p><strong>Region:</strong> <span id="region"></span></p>
+  <p><strong>Currencies:</strong> <span id="currencies"></span></p>
+  <p><strong>Languages:</strong> <span id="languages"></span></p>
+  <p><strong>Convert Currency:</strong></p>
+  <input type="number" id="amount" value="1" placeholder="Amount">
+  <select id="from-currency">
+    <option value="USD">USD</option>
+    <option value="EUR">EUR</option>
+    <option value="GBP">GBP</option>
+  </select>
+  <button onclick="convertCurrency()">Convert</button>
+  <p id="conversion-result"></p>
+  <a id="conversion-link" href="#" target="_blank" style="display: none; font-size: 0.9em;">See live conversion rates</a>
+  <button onclick="closeModal()">Close</button>
+</div>
+
+<script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([20, 0], 3);
+  let lastCountryInfo = null;
+  let countryCurrencyCode = null;
+
+/*  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+*/
+
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+    language: 'en' // Specify 'en' for English, or use other language codes
+    ,}).addTo(map);
+
+  map.on('click', function(e) {
+    showCountryData(e.latlng);
+  });
+
+  document.getElementById('country-search-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const countryName = document.getElementById('country-search').value.trim();
+    if (!countryName) return;
+
+    try {
+      const res = await fetch(`https://restcountries.com/v3.1/name/${countryName}?fullText=true`);
+      const data = await res.json();
+      const country = data[0];
+      const latlng = country.latlng;
+      if (latlng) {
+        map.setView(latlng, 5);
+        showCountryData({ lat: latlng[0], lng: latlng[1] });
+      }
+    } catch (err) {
+      alert("Country not found.");
+      console.error(err);
+    }
+  });
+
+  document.getElementById('language-select').addEventListener('change', () => {
+    if (!lastCountryInfo) return;
+    const lang = document.getElementById('language-select').value;
+    const translatedName = lastCountryInfo.translations?.[lang]?.common || lastCountryInfo.name.common;
+    document.getElementById('countryName').innerText = translatedName;
+  });
+
+  async function showCountryData(latlng) {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json`);
+      const data = await res.json();
+      const country = data.address.country;
+      if (!country) return;
+
+      const countryRes = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
+      const countryData = await countryRes.json();
+      const info = countryData[0];
+      lastCountryInfo = info;
+
+      const lang = document.getElementById('language-select').value;
+      document.getElementById('countryName').innerText = info.translations?.[lang]?.common || info.name.common;
+      document.getElementById('flag').src = info.flags?.svg || '';
+      document.getElementById('capital').innerText = info.capital?.[0] || 'N/A';
+      document.getElementById('population').innerText = info.population?.toLocaleString() || 'N/A';
+      document.getElementById('region').innerText = info.region || 'N/A';
+      document.getElementById('currencies').innerText = Object.values(info.currencies || {}).map(c => `${c.name} (${c.symbol})`).join(', ') || 'N/A';
+      document.getElementById('languages').innerText = Object.values(info.languages || {}).join(', ') || 'N/A';
+
+      countryCurrencyCode = Object.keys(info.currencies || {})[0];
+
+      document.getElementById('countryModal').classList.add('active');
+      document.getElementById('overlay').classList.add('active');
+
+    } catch (err) {
+      console.error("Error fetching country data:", err);
+    }
+  }
+
+    async function convertCurrency() {
+    const amount = document.getElementById('amount').value;
+    const from = document.getElementById('from-currency').value;
+
+    // Handle missing input
+    if (!amount || !from || !countryCurrencyCode) {
+        document.getElementById('conversion-result').innerText = 'Currency not available for this country.';
+        return;
+    }
+
+    // Log conversion request
+    console.log(`Attempting to convert ${amount} ${from} to ${countryCurrencyCode}`);
+
+    try {
+        const res = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${countryCurrencyCode}&amount=${amount}`);
+        const data = await res.json();
+        console.log("Conversion response:", data);
+
+        // Handle success
+        if (data.result && typeof data.result === "number") {
+            document.getElementById('conversion-result').innerText =
+            `${amount} ${from} = ${data.result.toFixed(2)} ${countryCurrencyCode}`;
+
+            const link = document.getElementById('conversion-link');
+            link.href = `https://exchangerate.host/convert?from=${from}&to=${countryCurrencyCode}&amount=${amount}`;
+            link.style.display = 'inline-block';
+        } else {
+        // Handle unsupported currency
+            document.getElementById('conversion-result').innerText =
+            `Conversion not supported for ${countryCurrencyCode}.`;
+            document.getElementById('conversion-link').style.display = 'none';
+        }
+    } catch (err) {
+        document.getElementById('conversion-result').innerText = 'Currency conversion failed.';
+        console.error("Currency conversion error:", err);
+        document.getElementById('conversion-link').style.display = 'none';
+    }
+    }
+
+  function closeModal() {
+    document.getElementById('countryModal').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('conversion-result').innerText = '';
+  }
+
+  document.getElementById('overlay').addEventListener('click', closeModal);
+  window.closeModal = closeModal;
+</script>
+</body>
+</html>
