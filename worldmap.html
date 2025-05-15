@@ -75,9 +75,10 @@
       const country = data[0];
       const latlng = country.latlng;
       if (latlng) {
-        map.flyTo(latlng, 5);
+        map.flyTo(latlng, 5, {
         animate: true,
-        duration: 1.5 //seconds
+        duration: 1.5, //seconds
+        });
         showCountryData({ lat: latlng[0], lng: latlng[1] });
       }
     } catch (err) {
