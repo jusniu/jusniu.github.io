@@ -107,6 +107,21 @@
       const countryRes = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
       const countryData = await countryRes.json();
       const info = countryData[0];
+      
+      //dynamically change zoom level based on country size
+      let zoomLevel = 5;
+      const area = info.area;
+
+      if (area > 2_000_000) zoomLevel = 3;      // Big countries like Canada, Russia
+      else if (area > 500_000) zoomLevel = 4;   // Medium-large like Mexico
+      else if (area > 100_000) zoomLevel = 5;   // Smaller countries
+      else zoomLevel = 6;                       // Tiny island nations, etc.
+
+      // Zoom in with animation
+      map.flyTo({ lat: latlng.lat, lng: latlng.lng }, zoomLevel, {
+        animate: true,
+        duration: 1.5
+      });
       lastCountryInfo = info;
 
       const lang = document.getElementById('language-select').value;
