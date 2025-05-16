@@ -1,55 +1,57 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-  }
-  #map {
-    height: 100vh;
-    width: 100%;
-  }
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+#map {
+  height: 100vh;
+  width: 100%;
+}
 
-  .modal {
-    position: fixed;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    display: none;
-    z-index: 1000;
-    width: 300px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-  }
+.modal {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  overflow-y: auto;
+  max-height: 80vh;
+}
 
-  .modal.active {
-    display: block;
-  }
+.modal.active {
+  display: block;
+}
 
-  .overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 999;
-  }
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 999;
+}
 
-  .overlay.active {
-    display: block;
-  }
-  
-  #controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-  }
+.overlay.active {
+  display: block;
+}
 
-  #loading {
+#controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+#loading {
   position: absolute;
   top: 20px;
   left: 50%;
@@ -59,4 +61,21 @@ body {
   border-radius: 5px;
   z-index: 10000;
   font-weight: bold;
+}
+
+@media (max-width: 480px) 
+{
+  .modal {
+    top: 5%;
+    padding: 15px;
+    font-size: 0.95em;
+  }
+
+  #flag {
+    width: 80px;
+  }
+
+  #conversion-link {
+    font-size: 0.8em;
+  }
 }
