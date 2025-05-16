@@ -51,8 +51,23 @@
 
 <script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  function adjustMapForScreenSize() {
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+      map.setView([20, 0], 1); // less zoomed-in for small screens
+
+      // Prompt user to rotate if portrait
+      if (window.innerHeight > window.innerWidth) {
+        alert("For the best experience, please rotate your phone horizontally.");
+      }
+    } else {
+      map.setView([20, 0], 3); // standard for desktop
+    }
+  }
   const countryCache = new Map();
-  const map = L.map('map').setView([20, 0], 2);
+ // const map = L.map('map').setView([20, 0], 2);
+  const map = L.map('map').adjustMapForScreenSize();
   let lastCountryInfo = null;
   let countryCurrencyCode = null;
 
@@ -113,14 +128,15 @@
             const info = countryCache.get(country);
             renderCountryInfo(info); // Refactor display logic into a function
             return;
-          }
+          } else {
           //gets country based on latitude/longitude
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json`);
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json`);
+            const countryRes = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
+          }
           const data = await res.json();
           const country = data.address.country;
           if (!country) return;
 
-          const countryRes = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
           const countryData = await countryRes.json();
           const info = countryData[0];
           countryCache.set(country, info);
