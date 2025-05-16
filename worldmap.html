@@ -25,6 +25,7 @@
 </div>
 
 <div id="map"></div>
+<div id="loading" style="display: none;">Loading...</div>
 <div class="overlay" id="overlay"></div>
 
 <div class="modal" id="countryModal">
@@ -53,6 +54,8 @@
   let lastCountryInfo = null;
   let countryCurrencyCode = null;
   const map = L.map('map').setView([20, 0], 2);
+  
+  //loads the map tile layers
   document.addEventListener('DOMContentLoaded', function () {
     L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
     maxZoom: 20,
@@ -67,11 +70,11 @@
     showCountryData(e.latlng);
   });
 
+  //performs the search and fly to country if using the search form in HTML
   document.getElementById('country-search-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const countryName = document.getElementById('country-search').value.trim();
     if (!countryName) return;
-
     try {
       const res = await fetch(`https://restcountries.com/v3.1/name/${countryName}?fullText=true`);
       const data = await res.json();
@@ -90,6 +93,7 @@
     }
   });
 
+  //translates the country name displayed in the modal if the language is selected from the drop-down menu
   document.getElementById('language-select').addEventListener('change', () => {
     if (!lastCountryInfo) return;
     const lang = document.getElementById('language-select').value;
@@ -97,49 +101,56 @@
     document.getElementById('countryName').innerText = translatedName;
   });
 
+  //grabs and fetches the country information from the restCountries API
   async function showCountryData(latlng) {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json`);
-      const data = await res.json();
-      const country = data.address.country;
-      if (!country) return;
+      //adding a loading spinner
+      document.getElementById('loading').style.display = 'block';
+      try {
+          //returns country based on latitude/longitude
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json`);
+          const data = await res.json();
+          const country = data.address.country;
+          if (!country) return;
 
-      const countryRes = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
-      const countryData = await countryRes.json();
-      const info = countryData[0];
-      
-      //dynamically change zoom level based on country size
-      let zoomLevel = 5;
-      const area = info.area;
+          const countryRes = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
+          const countryData = await countryRes.json();
+          const info = countryData[0];
+          
+          //dynamically change zoom level based on country size
+          let zoomLevel = 5;
+          const area = info.area;
 
-      if (area > 2_000_000) zoomLevel = 3;      // Big countries like Canada, Russia
-      else if (area > 500_000) zoomLevel = 4;   // Medium-large like Mexico
-      else if (area > 100_000) zoomLevel = 5;   // Smaller countries
-      else zoomLevel = 6;                       // Tiny island nations, etc.
+          if (area > 2_000_000) zoomLevel = 3;      // Big countries like Canada, Russia
+          else if (area > 500_000) zoomLevel = 4;   // Medium-large like Mexico
+          else if (area > 100_000) zoomLevel = 5;   // Smaller countries
+          else zoomLevel = 6;                       // Tiny island nations, etc.
 
-      // Zoom in with animation
-      map.flyTo({ lat: latlng.lat, lng: latlng.lng }, zoomLevel, {
-        animate: true,
-        duration: 1.5
-      });
-      lastCountryInfo = info;
+          // Zoom in with animation based on latitude/longitude
+          map.flyTo({ lat: latlng.lat, lng: latlng.lng }, zoomLevel, {
+            animate: true,
+            duration: 1.5
+          });
+          lastCountryInfo = info;
 
-      const lang = document.getElementById('language-select').value;
-      document.getElementById('countryName').innerText = info.translations?.[lang]?.common || info.name.common;
-      document.getElementById('flag').src = info.flags?.svg || '';
-      document.getElementById('capital').innerText = info.capital?.[0] || 'N/A';
-      document.getElementById('population').innerText = info.population?.toLocaleString() || 'N/A';
-      document.getElementById('region').innerText = info.region || 'N/A';
-      document.getElementById('currencies').innerText = Object.values(info.currencies || {}).map(c => `${c.name} (${c.symbol})`).join(', ') || 'N/A';
-      document.getElementById('languages').innerText = Object.values(info.languages || {}).join(', ') || 'N/A';
+          const lang = document.getElementById('language-select').value;
+          document.getElementById('countryName').innerText = info.translations?.[lang]?.common || info.name.common;
+          document.getElementById('flag').src = info.flags?.svg || '';
+          document.getElementById('capital').innerText = info.capital?.[0] || 'N/A';
+          document.getElementById('population').innerText = info.population?.toLocaleString() || 'N/A';
+          document.getElementById('region').innerText = info.region || 'N/A';
+          document.getElementById('currencies').innerText = Object.values(info.currencies || {}).map(c => `${c.name} (${c.symbol})`).join(', ') || 'N/A';
+          document.getElementById('languages').innerText = Object.values(info.languages || {}).join(', ') || 'N/A';
 
-      countryCurrencyCode = Object.keys(info.currencies || {})[0];
+          countryCurrencyCode = Object.keys(info.currencies || {})[0];
 
-      document.getElementById('countryModal').classList.add('active');
-      document.getElementById('overlay').classList.add('active');
-
-    } catch (err) {
-      console.error("Error fetching country data:", err);
+          document.getElementById('countryModal').classList.add('active');
+          document.getElementById('overlay').classList.add('active');
+          } finally {
+          document.getElementById('loading').style.display = 'none';
+        }
+        } catch (err) {
+          console.error("Error fetching country data:", err);
     }
   }
 
