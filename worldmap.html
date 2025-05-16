@@ -62,7 +62,8 @@
     ,}).addTo(map);
     tileLayer.on('tileerror', function(e) {
       console.error("Tile loading error:", e);
-  });
+    });
+  }
 
   map.on('click', function(e) {
     showCountryData(e.latlng);
@@ -175,6 +176,7 @@
 
   document.getElementById('overlay').addEventListener('click', closeModal);
   window.closeModal = closeModal;
+  
 </script>
 </body>
 </html>
