@@ -54,11 +54,15 @@
   let lastCountryInfo = null;
   let countryCurrencyCode = null;
 
-  L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=55fa9dda-3f2e-4ca5-80e8-d16c736dd08f', {
-  maxZoom: 20,
-  attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-  language: 'en' // Specify 'en' for English, or use other language codes
-  ,}).addTo(map);
+  document.addEventListener('DOMContentLoaded', function () {
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=55fa9dda-3f2e-4ca5-80e8-d16c736dd08f', {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+    language: 'en' // Specify 'en' for English, or use other language codes
+    ,}).addTo(map);
+    tileLayer.on('tileerror', function(e) {
+      console.error("Tile loading error:", e);
+  });
 
   map.on('click', function(e) {
     showCountryData(e.latlng);
