@@ -21,6 +21,7 @@ body {
   z-index: 1001;
   overflow-y: auto;
   max-height: 80vh;
+  display: none;
 }
 
 .modal.active {
@@ -78,4 +79,23 @@ body {
   #conversion-link {
     font-size: 0.8em;
   }
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+.dark-mode .modal {
+  background-color: #1e1e1e;
+  color: #f1f1f1;
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode button {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+  border: 1px solid #444;
 }
