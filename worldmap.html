@@ -80,7 +80,31 @@
   adjustMapForScreenSize();
   let lastCountryInfo = null;
   let countryCurrencyCode = null;
+  let currentTileLayer;
+  let isDarkMode = false;
 
+  //sets the map tile depending on the dark mode toggle
+  function setMapTileLayer(theme) {
+  if (currentTileLayer) {
+    map.removeLayer(currentTileLayer);
+  }
+    const tileURL = `https://tiles.stadiamaps.com/tiles/${theme}/{z}/{x}/{y}{r}.png`;
+    currentTileLayer = L.tileLayer(tileURL, {
+      maxZoom: 20,
+      attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>, &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
+    }).addTo(map);
+  }
+  // Initial light theme
+  setMapTileLayer("alidade_smooth");
+
+  // Toggle button listener
+  document.getElementById("dark-toggle").addEventListener("click", () => {
+    isDarkMode = !isDarkMode;
+    const theme = isDarkMode ? "alidade_smooth_dark" : "alidade_smooth";
+    setMapTileLayer(theme);
+  });
+
+/*
   //loads the map tile layers
   document.addEventListener('DOMContentLoaded', function () {
     const tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
@@ -93,6 +117,8 @@
       console.error("Tile loading error:", e);
     });
   });
+*/
+
   map.on('click', function(e) {
     showCountryData(e.latlng);
   });
