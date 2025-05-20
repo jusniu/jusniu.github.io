@@ -11,7 +11,6 @@
 <body>
 
 <div id="controls">
-    <div id="loading" style="display: none;">Loading...</div>
     <!-- Select language to translate country name in modal. I may expand the translation to encompass full site in the future.-->
     <select id="language-select">
         <option value="eng" selected>English</option>
@@ -30,10 +29,10 @@
 </div>
 
 <div id="map"></div>
-
 <div class="overlay" id="overlay"></div>
 
 <div class="modal" id="countryModal">
+  <div id="loading" style="display: none;"><h1>Loading...</h1></div>
   <h2 id="countryName">Country Name</h2>
   <img id="flag" src="" alt="Flag" style="width: 100px; margin-bottom: 10px;">
   <p><strong>Capital:</strong> <span id="capital"></span></p>
