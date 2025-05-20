@@ -29,10 +29,10 @@
 </div>
 
 <div id="map"></div>
+<div id="loading" style="display: none;"><h1>Loading...</h1></div>
 <div class="overlay" id="overlay"></div>
 
 <div class="modal" id="countryModal">
-  <div id="loading" style="display: none;"><h1>Loading...</h1></div>
   <h2 id="countryName">Country Name</h2>
   <img id="flag" src="" alt="Flag" style="width: 100px; margin-bottom: 10px;">
   <p><strong>Capital:</strong> <span id="capital"></span></p>
@@ -179,8 +179,9 @@
             animate: true,
             duration: 1.5
           });
-          renderCountryInfo(info); 
+          //renderCountryInfo(info); 
           lastCountryInfo = info;
+          setTimeout(() => renderCountryInfo(info), 1500); // Delay modal until after flyTo animation
     } catch (err) {
         console.error("Error fetching country data:", err);
     }
