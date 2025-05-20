@@ -81,7 +81,8 @@
   let lastCountryInfo = null;
   let countryCurrencyCode = null;
   let currentTileLayer;
-  let isDarkMode = false;
+  //will set the map layer theme to dark by default if the users system is in dark mode
+  let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   //sets the map tile depending on the dark mode toggle
   function setMapTileLayer(theme) {
@@ -94,8 +95,8 @@
       attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>, &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
     }).addTo(map);
   }
-  // Initial light theme
-  setMapTileLayer("alidade_smooth");
+  // Apply preferred theme at load
+  setMapTileLayer(isDarkMode ? "alidade_smooth_dark" : "alidade_smooth");
 
   // Toggle button listener
   document.getElementById("dark-toggle").addEventListener("click", () => {
@@ -104,20 +105,34 @@
     setMapTileLayer(theme);
   });
 
-/*
-  //loads the map tile layers
-  document.addEventListener('DOMContentLoaded', function () {
-    const tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
-    maxZoom: 20,
-    attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-    language: 'en' // Specify 'en' for English, or use other language codes
-    ,}).addTo(map);
-    
-    tileLayer.on('tileerror', function(e) {
-      console.error("Tile loading error:", e);
-    });
-  });
-*/
+async function detectUserCurrency() {
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+
+    const currency = data.currency;
+    console.log("Detected user currency:", currency);
+
+    // If the currency is in the list, select it
+    const currencySelect = document.getElementById('from-currency');
+    const optionExists = Array.from(currencySelect.options).some(opt => opt.value === currency);
+
+    if (optionExists) {
+      currencySelect.value = currency;
+    } else {
+      // Optionally add it dynamically
+      const newOption = new Option(currency, currency);
+      currencySelect.add(newOption);
+      currencySelect.value = currency;
+    }
+
+  } catch (err) {
+    console.error("Currency detection failed:", err);
+  }
+}
+
+// Run on page load
+detectUserCurrency();
 
   map.on('click', function(e) {
     showCountryData(e.latlng);
